@@ -5,7 +5,6 @@ from core.util import (
     seq_get,
 )
 
-
 logger = logging.getLogger(__name__)
 
 class Reader:

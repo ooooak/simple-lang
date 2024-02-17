@@ -66,3 +66,9 @@ class Laxer:
                 break
             coll += b
         return Token(coll, TokenKind.STRING_LITERAL)
+
+    def tokens(self):
+        ret = []
+        for t in self.token():
+            ret.append(t)
+        return ret

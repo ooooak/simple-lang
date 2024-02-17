@@ -1,1 +1,7 @@
-print("hello world")
+(ns hello)
+
+
+
+
+(defn hello []
+  ())
