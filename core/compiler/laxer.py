@@ -1,3 +1,4 @@
+import logging
 from dataclasses import dataclass
 from enum import Enum, auto
 
@@ -6,6 +7,8 @@ from core.util import (
     into_lookup_tbl,
     map_has
 )
+
+logger = logging.getLogger(__name__)
 
 # dentifiers, keywords, literals, operators
 
@@ -27,8 +30,8 @@ def is_latter(b):
 class Laxer:
     def __init__(self, r: Reader):
         self.r = r
-        
-    def token(self):
+
+    def _token(self):
         b = self.r.peek()
         if not b:
             return None
@@ -38,7 +41,12 @@ class Laxer:
             return self.symbol()
         if b == '"':
             return self.string_literal()
-            
+
+
+    def token(self):
+        token = self._token()
+        logger.debug("Token: %s", token)
+        return token
 
     def keyword_latter(self):
         coll = ""
@@ -66,3 +74,9 @@ class Laxer:
                 break
             coll += b
         return Token(coll, TokenKind.STRING_LITERAL)
+
+    def tokens(self):
+        ret = []
+        for t in self.token():
+            ret.append(t)
+        return ret

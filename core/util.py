@@ -1,3 +1,4 @@
+
 def seq_get(data, index, default=None):
     if not data:
         return default
@@ -15,3 +16,10 @@ def map_has(data, index):
 
 def into_lookup_tbl(*coll):
     return {value: True  for i, value in enumerate(coll)}
+
+def spit(file_path, data):
+    with open(file_path, 'w', encoding='utf8') as file:
+        file.write(data)
+
+def cat(file_path):
+    pass
