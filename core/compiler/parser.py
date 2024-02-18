@@ -1,14 +1,17 @@
+import logging
 from dataclasses import dataclass
-from typing import Union
+from typing import Union, List
 
-from .laxer import TokenKind, Laxer, Token
+from core.compiler.laxer import TokenKind, Laxer, Token
+
+logger = logging.getLogger(__name__)
 
 class SyntaxTree:
     pass
 
 @dataclass
 class Body(SyntaxTree):
-    expression: Union['FnCall', 'Cond']
+    expressions: Union['FnCall', 'Cond']
 
 @dataclass
 class Cond(SyntaxTree):
@@ -17,7 +20,7 @@ class Cond(SyntaxTree):
 @dataclass
 class FnCall(SyntaxTree):
     name: Token
-    args: list[Token]
+    args: List[Token]
 
 class Parser:
     def __init__(self, lexer: Laxer) -> None:
@@ -34,11 +37,15 @@ class Parser:
         assert self.get().kind == TokenKind.SYMBOL
         val = self.get()
         return FnCall(name, [val])
-        
-        
+
     def parse(self):
         body = []
         token = self.get()
+
+        logger.debug("Token: %s", Token)
         if token.kind == TokenKind.KEYWORD:
             body.append(self.fn_call(token))
+        else:
+            logger.error('invalid token, %s', token)
+
         return Body(body)
