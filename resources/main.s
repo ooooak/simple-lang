@@ -1,1 +1,2 @@
-print("x00000000000000000000000000")
+x = "Hello world"
+print(x)

@@ -12,10 +12,22 @@ from core.util import spit
 
 setup_config(LOGGING_CONFIG)
 
+def dump_lexer(l: Laxer):
+    while True:
+        token = l.token()
+        if not token:
+            break
+        print(token)
+
 
 
 def main():
-    ast = Parser(Laxer(Reader("./resources/main.s"))).parse()
+    reader = Reader("./resources/main.s")
+    lexer = Laxer(reader)
+    dump_lexer(lexer)
+    exit()
+    ast = Parser(lexer).parse()
+    return ast
     output = Transpiler(ast).compile()
     spit("./resources/main.go", output)
     
