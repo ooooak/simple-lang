@@ -9,7 +9,7 @@ class Peekable:
         self.coll = coll
         self.pos = 0
 
-    def get_pos(self): 
+    def get_pos(self):
         return self.pos
     
     def get(self):

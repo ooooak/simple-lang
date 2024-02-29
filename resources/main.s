@@ -1,2 +1,4 @@
-x = "Hello world"
-print(x)
+def main() {
+    let x = "hello"
+    print(x)
+}

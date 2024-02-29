@@ -1,51 +1,33 @@
 import logging
-from dataclasses import dataclass
-from typing import Union, List
 
-from core.compiler.laxer import TokenKind, Laxer, Token
+from typing import List
+from dataclasses import dataclass
+
+from core.compiler.laxer import TokenKind, Token
 from core.peekable import Peekable
+
 
 logger = logging.getLogger(__name__)
 
-class SyntaxTree:
-    pass
 
 @dataclass
-class Body(SyntaxTree):
-    expressions: Union['FnCall', 'Cond']
-
-
-@dataclass
-class Binding(SyntaxTree):
-    name: Token
-    exp: [Token]
-
-@dataclass
-class Cond(SyntaxTree):
-    pass
-
-
-@dataclass
-class FnCall(SyntaxTree):
-    name: Token
-    args: List[Token]
+class ParserErr:
+    message: str
 
 
 
 class Parser:
-    def __init__(self, lexer: Peekable) -> None:
-        self.lexer = lexer
+    def __init__(self, lexer: List[Token]) -> None:
+        self.lexer = Peekable(lexer)
 
     def parse(self):
         body = []
-
         while True:
             token = self.lexer.peek()
             if not token:
-                 break
+                break
 
-            next: Token = self.lexer.peek_next()
-
+            next = self.lexer.peek_next()
             if token.kind == TokenKind.KEYWORD:
                 if next.value == '=':
                     body.append(self.binding())
@@ -53,10 +35,21 @@ class Parser:
                 elif next.value == '(':
                     body.append(self.fn_call())
                     continue
+
+            if token.value == 'def':
+                ex, err = self.parse_def()
+                body.append(ex)
+                
             logger.error('invalid token, %s', token)
             break
 
-        return Body(body)
+        return {
+            "body": body
+        }
+
+    def fn_def(self):
+        pass
+
 
     def fn_call(self):
         start = self.lexer.get_pos()
@@ -106,3 +99,18 @@ class Parser:
             "value_type": ""
             # "tokens": self.lexer.take(start, self.lexer.get_pos())
         }
+
+    def parse_def(self):
+        # skip def
+        self.lexer.get()
+        method_name = self.lexer.get()
+
+        if method_name.kind is not TokenKind.KEYWORD:
+            return 
+
+        while True:
+            method_name
+
+        
+    def err(self):
+        pass
