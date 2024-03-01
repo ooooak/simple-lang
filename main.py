@@ -1,5 +1,7 @@
 import logging
 from pprint import pprint
+import sys
+import json
 
 
 from core.log import setup_config, LOGGING_CONFIG
@@ -23,11 +25,12 @@ def main():
     if err:
         handle_error(err)
 
-    ast, err = Parser(tokens).parse()
+    ast, err = Parser(tokens).parse_body()
     if err:
-        handle_error(err)
+        print(err)
+        sys.exit()
     
-    print(ast)
+    pprint(ast)
     # output = Transpiler(ast).compile()
     # spit("./resources/main.go", output)
     
