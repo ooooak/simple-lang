@@ -6,19 +6,16 @@ from core.transpiler.templates import (
     FN_CALL_TPL,
     WRAPPER_TPL
 )
-from core.compiler.parser import (
-    SyntaxTree, 
-    Cond,
-    FnCall
-)
+
+# call = {}
 
 
 class Transpiler:
-    def __init__(self, ast: SyntaxTree) -> None:
+    def __init__(self, ast) -> None:
         self.ast = ast
 
 
-    def fn_call(self, fn: FnCall):
+    def fn_call(self, fn):
         name = fn.name.value
         ret = FN_CALL_TPL.substitute(name=name, args=self.args(fn.args))
         return ret
@@ -39,7 +36,9 @@ class Transpiler:
     def _compile(self):
         instructions = []
         for item in self.ast.expressions:
-            if isinstance(item, FnCall):
+            ops = item['ops']
+            
+            if isinstance(item):
                 instructions.append(self.fn_call(item))
             else:
                 raise ValueError("Expression is not supported")
