@@ -12,17 +12,18 @@ class LaxerError:
     file_path: str
     line_number: int
     pos: int
-    
 
 logger = logging.getLogger(__name__)
-
-# dentifiers, keywords, literals, operators
 
 OPERATORS = ['=']
 SYMBOLS=into_lookup_table('(',')', '{', '}', '[', ']')
 RESERVED_KEYWORDS=['if', 'else']
 
+LINE_FEED = ['\n', '\r']
+SPACE = [' ', '\t']
+
 class TokenKind(Enum):
+    ATTR=auto()
     KEYWORD=auto()
     SYMBOL=auto()
     STRING_LITERAL=auto()
@@ -48,7 +49,6 @@ class Laxer:
             token = self.token()
             if not token:
                 break
-
             if isinstance(token, LaxerError):
                 return [], token
 
@@ -60,25 +60,30 @@ class Laxer:
         if not b:
             return None
         if is_latter(b):
-            return self.keyword_latter()
+            return self.keyword()
         if b in SYMBOLS:
             return self.symbol()
         if b in OPERATORS:
             return self.operator()
+        if b == ':':
+            return self.attr()
         if b == '"':
             return self.string_literal()
         if b == "'":
             return self.err('single quotes are not supported')
-        if b == ' ':
+        if b == '/' and self.r.peek_next() == '/':
+            self.comment()
+        if b in SPACE:
             self.r.get()
             return self.token()
-        if b == '\n' :
+        if b in LINE_FEED:
             self.line_feed += 1
             self.r.get()
             return self.token()
+
         return self.err(f'unexpected value: {repr(b)}')
 
-    def keyword_latter(self):
+    def keyword(self):
         coll = ""
         while True:
             b = self.r.get()
@@ -107,6 +112,20 @@ class Laxer:
                 break
             coll += b
         return Token(coll, TokenKind.STRING_LITERAL)
+    
+    def attr(self):
+        coll = self.r.get()
+        while True:
+            b = self.r.get()
+            if b in SPACE or b in LINE_FEED:
+                self.r.undo_read()
+                break
+            coll += b
+        return Token(coll, TokenKind.ATTR)
+        
+    
+    def comment(self):
+        pass
 
     def err(self, msg: str):
         return LaxerError(

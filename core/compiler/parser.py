@@ -9,7 +9,6 @@ from core.peekable import Peekable
 
 logger = logging.getLogger(__name__)
 
-
 @dataclass
 class ParserErr:
     message: str
@@ -40,7 +39,8 @@ class Parser:
         if token.value == "{":
             return self.parse_block()
 
-        logger.error('invalid token, %s', token)
+        return None, self.err(f'unexpected token {token.value}')
+
 
     def parse_body(self):
         body = []

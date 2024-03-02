@@ -1,4 +1,5 @@
 def main() {
+    y = :hello
     x = "hello"
     print(x)
     {
