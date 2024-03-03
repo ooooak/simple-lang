@@ -25,6 +25,8 @@ def main():
     if err:
         handle_error(err)
 
+    # pprint(tokens)
+    # exit()
     ast, err = Parser(tokens).parse_body()
     if err:
         print(err)

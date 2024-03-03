@@ -93,9 +93,6 @@ class Parser:
 
         tk: Token = self.lexer.get()
 
-        if tk.kind != TokenKind.STRING_LITERAL:
-            return self.err("only strings are supported")
-
         return {
             "op": "binding",
             "name": name.value,
