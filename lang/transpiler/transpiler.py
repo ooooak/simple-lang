@@ -7,8 +7,6 @@ from lang.transpiler.templates import (
     WRAPPER_TPL
 )
 
-# call = {}
-
 
 class Transpiler:
     def __init__(self, ast) -> None:
