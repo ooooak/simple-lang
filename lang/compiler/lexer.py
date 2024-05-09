@@ -2,25 +2,19 @@ import logging
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from core.peekable import Peekable
-from core.util import into_lookup_table, read_file_char
+from lang.compiler import Reader
+from lang.utils import lookup_table, read_file_char
+from lang.exceptions import LexerError
 
-
-@dataclass(frozen=True)
-class LaxerError:
-    message: str
-    file_path: str
-    line_number: int
-    pos: int
 
 logger = logging.getLogger(__name__)
 
 OPERATORS = ['=']
-SYMBOLS=into_lookup_table('(',')', '{', '}', '[', ']')
+SYMBOLS=lookup_table('(',')', '{', '}', '[', ']')
 RESERVED_KEYWORDS=['if', 'else']
 
 LINE_FEED = ['\n', '\r']
-SPACE = [' ', '\t']
+SPACE = [' ', '\t', ',']
 
 class TokenKind(Enum):
     ATTR=auto()
@@ -37,9 +31,9 @@ class Token:
 def is_latter(b):
     return 'A' <= b <= 'Z' or 'a' <= b <= 'z'
 
-class Laxer:
+class Lexer:
     def __init__(self, file_path: str):
-        self.r = Peekable(read_file_char(file_path))
+        self.r = Reader(read_file_char(file_path))
         self.file_path = file_path
         self.line_feed = 0
 
@@ -49,7 +43,7 @@ class Laxer:
             token = self.token()
             if not token:
                 break
-            if isinstance(token, LaxerError):
+            if isinstance(token, LexerError):
                 return [], token
 
             coll.append(token)
@@ -67,10 +61,9 @@ class Laxer:
             return self.operator()
         if b == ':':
             return self.attr()
-        if b == '"':
-            return self.string_literal()
-        if b == "'":
-            return self.err('single quotes are not supported')
+        if b == '"' or b == "'":
+            return self.string_literal(b)
+            
         if b == '/' and self.r.peek_next() == '/':
             self.comment()
         if b in SPACE:
@@ -100,19 +93,18 @@ class Laxer:
     def operator(self):
         return Token(self.r.get(), TokenKind.OPERATOR)
 
-    def string_literal(self):
+    def string_literal(self, starting_quote: str):
         coll = ""
-        self.r.get() # skip "
-
+        self.r.get() # skip start
         while True:
             b = self.r.get()
             if not b:
                 return self.err('Unexpected EOF')
-            if b == '"':
+            if b == starting_quote:
                 break
             coll += b
         return Token(coll, TokenKind.STRING_LITERAL)
-    
+
     def attr(self):
         coll = self.r.get()
         while True:
@@ -122,13 +114,12 @@ class Laxer:
                 break
             coll += b
         return Token(coll, TokenKind.ATTR)
-        
-    
+
     def comment(self):
         pass
 
     def err(self, msg: str):
-        return LaxerError(
+        return LexerError(
             message=msg,
             line_number=self.line_feed + 1,
             file_path=self.file_path,

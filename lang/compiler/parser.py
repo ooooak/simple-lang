@@ -3,11 +3,12 @@ import logging
 from typing import List
 from dataclasses import dataclass
 
-from core.compiler.laxer import TokenKind, Token
-from core.peekable import Peekable
+from lang.compiler.lexer import TokenKind, Token
+from lang.compiler.lexer import Peekable
 
 
 logger = logging.getLogger(__name__)
+
 
 @dataclass
 class ParserErr:
@@ -39,8 +40,7 @@ class Parser:
         if token.value == "{":
             return self.parse_block()
 
-        return None, self.err(f'unexpected token {token.value}')
-
+        logger.error('invalid token, %s', token)
 
     def parse_body(self):
         body = []
@@ -92,6 +92,9 @@ class Parser:
         self.lexer.get()
 
         tk: Token = self.lexer.get()
+
+        if tk.kind != TokenKind.STRING_LITERAL:
+            return self.err("only strings are supported")
 
         return {
             "op": "binding",

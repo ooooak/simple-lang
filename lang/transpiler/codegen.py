@@ -1,5 +1,3 @@
-from core.compiler.parser import FnCall
-
 
 
 class CodeGen:

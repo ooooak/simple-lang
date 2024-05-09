@@ -7,11 +7,7 @@ def main() {
             :name 'hello'
             :age '123'
             'funnel' 'google'
-            :1 '1' 
+            :1 '1'
         }
     }
-
 }
-
-
-def main(item) = 

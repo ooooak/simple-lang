@@ -1,4 +1,4 @@
-import logging.config
+import logging
 
 LOGGING_CONFIG = {
     'version': 1,
