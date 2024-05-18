@@ -1,7 +1,13 @@
 def main() {
+    y = :hello
     x = "hello"
-    print(x)
+    print(x, y)
     {
-        y = "1"
+        z = {
+            :name 'hello'
+            :age '123'
+            'funnel' 'google'
+            :1 '1'
+        }
     }
 }

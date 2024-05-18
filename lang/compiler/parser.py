@@ -3,8 +3,8 @@ import logging
 from typing import List
 from dataclasses import dataclass
 
-from core.compiler.laxer import TokenKind, Token
-from core.peekable import Peekable
+from lang.compiler.lexer import TokenKind, Token
+from lang.compiler.lexer import Peekable
 
 
 logger = logging.getLogger(__name__)

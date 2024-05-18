@@ -1,10 +1,11 @@
 import logging
 from typing import List
-from core.util import Seq
+
+from lang.utils import Seq
 
 logger = logging.getLogger(__name__)
 
-class Peekable:
+class Reader:
     def __init__(self, coll: List):
         self.coll = coll
         self.pos = 0

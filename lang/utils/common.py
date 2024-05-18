@@ -1,25 +1,5 @@
-class Map:
-    @staticmethod
-    def has(data, index):
-        return index in data
 
-    @staticmethod
-    def get(data, index, default=None):
-        if index in data:
-            return data[index]
-        return default
-
-class Seq:
-    @staticmethod
-    def get(data, index, default=None):
-        if not data:
-            return default
-        if index < len(data):
-            return data[index]
-        return default
-
-
-def into_lookup_table(*coll):
+def lookup_table(*coll):
     return {value: True  for i, value in enumerate(coll)}
 
 def spit(file_path, data):

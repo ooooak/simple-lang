@@ -1,13 +1,11 @@
 from typing import List
 from string import Template
 
-from core.compiler.laxer import Token, TokenKind
-from core.transpiler.templates import (
+from lang.compiler.lexer import Token, TokenKind
+from lang.transpiler.templates import (
     FN_CALL_TPL,
     WRAPPER_TPL
 )
-
-# call = {}
 
 
 class Transpiler:
