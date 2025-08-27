@@ -1,5 +1,8 @@
-def main() {
-    y = :hello
+
+
+
+fn main() {
+    y = hello
     x = "hello"
     print(x, y)
     {

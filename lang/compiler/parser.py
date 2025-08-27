@@ -9,6 +9,9 @@ from lang.compiler.reader import Reader
 
 logger = logging.getLogger(__name__)
 
+
+
+
 @dataclass
 class ParserErr:
     message: str
@@ -29,8 +32,7 @@ class Parser:
             if next.value == '(':
                 return self.fn_call()
 
-        if token.value == 'def':
-            # parse function definition
+        if token.value == 'fn':
             return self.parse_def()
 
         if token.value == ':':
@@ -108,17 +110,8 @@ class Parser:
         method_name = self.lexer.get()
 
         if method_name.kind != TokenKind.KEYWORD:
-            return self.err("method name is not defined")
+            return self.err("method name is not defined")   
 
-        # parse args
-        p1 = self.lexer.get()
-        p2 = self.lexer.get()
-
-        if p1.value != '(':
-            return self.err(f'invalid token {p1.value}')
-
-        if p2.value != ')':
-            return self.err(f'invalid token {p1.value}')
 
         return {
             "op": "def",
@@ -152,7 +145,18 @@ class Parser:
             "op": "block",
             "body": block_ast
         }, None
-    
+
+
+    def parse_fn_arguments(self):
+        # parse args
+        p1 = self.lexer.get()
+        p2 = self.lexer.get()
+
+        if p1.value != '(':
+            return self.err(f'invalid token {p1.value}')
+
+        if p2.value != ')':
+            return self.err(f'invalid token {p1.value}')
 
     def parse_keyword(self):
         pass
