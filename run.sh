@@ -1,3 +1,3 @@
-python main.py
+uv run main.py
 
-go run ./resources/main.go
+# go run ./resources/main.go

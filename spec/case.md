@@ -1,24 +1,22 @@
+import Seq
+logger = logging.getLogger(__name__)
 
 
-def hello() {
+fn hello() {
     let x = hello
 }
 
-
-import Seq
-
-logger = logging.getLogger(__name__)
 
 struct Peekable {
     coll: coll
     pos: int = 0
 }
 
-def get_pos() {
+fn get_pos() {
     return self.pos
 }
     
-def get() {
+fn get() {
     b = Seq.get(self.coll, self.pos)
     if b:
         self.pos += 1
@@ -26,21 +24,28 @@ def get() {
 }
     
 
-    def undo_read(self):
-        self.pos -= 1
-
-    def peek(self):
-        return Seq.get(self.coll, self.pos)
-
-    def peek_next(self):
-        return Seq.get(self.coll, self.pos + 1)
-
-    def has_next(self):
-        self.peek() != None
-
-    def take(self, start, end):
-        return self.coll[start:end]
+fn undo_read(){
+    pos -= 1
 }
+    
+
+fn peek(self):
+    return (Seq.get self.coll, self.pos)
+
+fn peek_next(self) {
+    seq.get(self.coll, self.pos + 1)
+}
+    
+
+fn has_next(self) {
+    if !self.peek() {
+
+    }
+}
+    
+
+fn take(self, start, end):
+    return self.coll[start:end]
 
 
 

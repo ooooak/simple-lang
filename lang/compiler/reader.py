@@ -5,7 +5,11 @@ from lang.utils import Seq
 
 logger = logging.getLogger(__name__)
 
+
 class Reader:
+    """
+    Simple iterating for collections
+    """
     def __init__(self, coll: List):
         self.coll = coll
         self.pos = 0
