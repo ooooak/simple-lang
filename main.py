@@ -1,14 +1,15 @@
-from pprint import pprint
-import sys
+from lang.utils.logging import setup_logging, DEFAULT_CONFIG
+setup_logging(DEFAULT_CONFIG)
 
-from lang.log import setup_config, LOGGING_CONFIG
-from lang.compiler import Lexer, Parser, Reader
+
+
+import sys
+from pprint import pprint
+from lang.compiler.lexer import Lexer
+from lang.compiler.parser import Parser
 from lang.transpiler.transpiler import Transpiler
 
 from lang.utils import spit, read_file_char
-
-
-setup_config(LOGGING_CONFIG)
 
 
 def handle_error(err):

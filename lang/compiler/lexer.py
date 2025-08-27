@@ -2,7 +2,7 @@ import logging
 from dataclasses import dataclass
 from enum import Enum, auto
 
-from lang.compiler import Reader
+from lang.compiler.reader import Reader
 from lang.utils import lookup_table, read_file_char
 from lang.exceptions import LexerError
 

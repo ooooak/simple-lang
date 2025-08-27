@@ -1,14 +1,11 @@
-[tool.poetry]
-name = "lang"
+[project]
+name = "simple-lang"
 version = "0.1.0"
-description = ""
-authors = ["Akshay <akshay.deep0@gmail.com>"]
+description = "Add your description here"
 readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
 
-[tool.poetry.dependencies]
-python = "^3.11"
 
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+[tool.hatch.build.targets.wheel]
+packages = ["lang"]

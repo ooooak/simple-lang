@@ -4,11 +4,10 @@ from typing import List
 from dataclasses import dataclass
 
 from lang.compiler.lexer import TokenKind, Token
-from lang.compiler.lexer import Peekable
+from lang.compiler.reader import Reader
 
 
 logger = logging.getLogger(__name__)
-
 
 @dataclass
 class ParserErr:
@@ -16,7 +15,7 @@ class ParserErr:
 
 class Parser:
     def __init__(self, lexer: List[Token]) -> None:
-        self.lexer = Peekable(lexer)
+        self.lexer = Reader(lexer)
 
     def parse(self):
         token = self.lexer.peek()
