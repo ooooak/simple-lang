@@ -21,3 +21,13 @@ def read_file_char(path):
             chars.append(byte)
             i += 1
     return chars
+
+
+def cli_report_error(message: str):
+    """
+    Common method to display error message for cli
+    
+    :param message: Description
+    :type message: str
+    """
+    print(f"Error: {message}")
