@@ -14,6 +14,9 @@ class ParserErr:
     message: str
 
 class Parser:
+    """
+    Converts tokens into an Abstract Syntax Tree (AST)
+    """
     def __init__(self, lexer: List[Token]) -> None:
         self.lexer = Reader(lexer)
 
@@ -41,7 +44,7 @@ class Parser:
 
         logger.error('invalid token, %s', token)
 
-    def parse_body(self):
+    def create_ast(self):
         body = []
         while True:
             token, err = self.parse()

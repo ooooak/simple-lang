@@ -1,3 +1,5 @@
+import os
+from pathlib import Path
 
 def lookup_table(*coll):
     return {value: True  for i, value in enumerate(coll)}
@@ -10,24 +12,12 @@ def cat(file_path):
     pass
 
 
-def read_file_char(path):
-    chars = []
+def read_chars(path: Path):
+    """
+    Read file char by char    
+    :param path: path of file
+    :type path: Path
+    """
     with open(path, 'r', encoding='utf-8') as file:
-        i = 1
-        while True:
-            byte = file.read(1)
-            if not byte:
-                break
-            chars.append(byte)
-            i += 1
-    return chars
+        return list(file.read())
 
-
-def cli_report_error(message: str):
-    """
-    Common method to display error message for cli
-    
-    :param message: Description
-    :type message: str
-    """
-    print(f"Error: {message}")

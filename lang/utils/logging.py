@@ -1,5 +1,4 @@
-import logging
-import logging.config
+from logging import config
 
 
 DEFAULT_CONFIG = {
@@ -26,5 +25,5 @@ DEFAULT_CONFIG = {
 }
 
 
-def setup_logging(config):
-    return logging.config.dictConfig(config)
+def setup_logging():
+    return config.dictConfig(DEFAULT_CONFIG)

@@ -33,7 +33,7 @@ class Reader:
         return Seq.get(self.coll, self.pos + 1)
 
     def has_next(self):
-        self.peek() != None
+        self.peek() is not None
 
     def take(self, start, end):
         return self.coll[start:end]

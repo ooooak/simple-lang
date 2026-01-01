@@ -1,10 +1,11 @@
+from pathlib import Path
 import logging
 from dataclasses import dataclass
 from enum import Enum, auto
 
 from lang.compiler.reader import Reader
-from lang.utils import lookup_table, read_file_char
-from lang.exceptions import LexerError
+from lang.utils import lookup_table, read_chars
+from lang.compiler.exceptions import LexerException
 
 
 logger = logging.getLogger(__name__)
@@ -31,9 +32,20 @@ class Token:
 def is_latter(b):
     return 'A' <= b <= 'Z' or 'a' <= b <= 'z'
 
+def lexer_error(lex: 'Lexer', error: str):
+    return LexerException(
+        error=error,
+        filepath=lex.file_path,
+        line_number=lex.line_feed + 1,
+        pos=0
+    )
+
 class Lexer:
-    def __init__(self, file_path: str):
-        self.r = Reader(read_file_char(file_path))
+    """
+    Converts source code into tokens
+    """
+    def __init__(self, file_path: Path):
+        self.r = Reader(read_chars(file_path))
         self.file_path = file_path
         self.line_feed = 0
 
@@ -43,11 +55,11 @@ class Lexer:
             token = self.token()
             if not token:
                 break
-            if isinstance(token, LexerError):
+            if isinstance(token, LexerException):
                 return [], token
 
             coll.append(token)
-        return coll, None
+        return coll
 
     def token(self):
         b = self.r.peek()
@@ -74,7 +86,7 @@ class Lexer:
             self.r.get()
             return self.token()
 
-        return self.err(f'unexpected value: {repr(b)}')
+        raise lexer_error(self, f'unexpected value: {repr(b)}')
 
     def keyword(self):
         coll = ""
@@ -117,11 +129,3 @@ class Lexer:
 
     def comment(self):
         pass
-
-    def err(self, msg: str):
-        return LexerError(
-            message=msg,
-            line_number=self.line_feed + 1,
-            file_path=self.file_path,
-            pos=0
-        )

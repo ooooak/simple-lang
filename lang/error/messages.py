@@ -1,1 +1,0 @@
-CLI_MISSING_FILE_ARGUMENT = "file name is missing"
