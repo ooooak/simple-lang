@@ -28,16 +28,20 @@ class TokenKind(Enum):
 class Token:
     value: str
     kind: TokenKind
+    line_number: int
+    start_pos: int
+    end_pos: int
+
 
 def is_latter(b):
     return 'A' <= b <= 'Z' or 'a' <= b <= 'z'
 
-def lexer_error(lex: 'Lexer', error: str):
+def lexer_exception(lex: 'Lexer', error: str):
     return LexerException(
         error=error,
         filepath=lex.file_path,
         line_number=lex.line_feed + 1,
-        pos=0
+        pos=lex.r.position
     )
 
 class Lexer:
@@ -86,10 +90,11 @@ class Lexer:
             self.r.get()
             return self.token()
 
-        raise lexer_error(self, f'unexpected value: {repr(b)}')
+        raise lexer_exception(self, f'unexpected value: {repr(b)}')
 
     def keyword(self):
         coll = ""
+        start_pos = self.r.position
         while True:
             b = self.r.get()
             if is_latter(b):
@@ -97,27 +102,30 @@ class Lexer:
             else:
                 self.r.undo_read()
                 break
-        return Token(coll, TokenKind.KEYWORD)
+        return Token(coll, TokenKind.KEYWORD, self.line_feed, start_pos, self.r.position)
 
     def symbol(self):
-        return Token(self.r.get(), TokenKind.SYMBOL)
+        return Token(self.r.get(), TokenKind.SYMBOL, self.line_feed, self.r.position, self.r.position)
 
     def operator(self):
-        return Token(self.r.get(), TokenKind.OPERATOR)
+        return Token(self.r.get(), TokenKind.OPERATOR, self.line_feed, self.r.position, self.r.position)
+    
 
     def string_literal(self, starting_quote: str):
         coll = ""
+        start_pos = self.r.position
         self.r.get() # skip start
         while True:
             b = self.r.get()
             if not b:
-                return self.err('Unexpected EOF')
+                raise lexer_exception(self, 'Unexpected EOF')
             if b == starting_quote:
                 break
             coll += b
-        return Token(coll, TokenKind.STRING_LITERAL)
+        return Token(coll, TokenKind.STRING_LITERAL, self.line_feed, start_pos, self.r.position)
 
     def attr(self):
+        start_pos = self.r.position
         coll = self.r.get()
         while True:
             b = self.r.get()
@@ -125,7 +133,7 @@ class Lexer:
                 self.r.undo_read()
                 break
             coll += b
-        return Token(coll, TokenKind.ATTR)
+        return Token(coll, TokenKind.ATTR, self.line_feed, start_pos, self.r.position)
 
     def comment(self):
         pass

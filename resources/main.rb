@@ -8,6 +8,6 @@ def main() {
         age: '123'
         funnel: 'google'
         test: '1'
-    }       
+    }
 }
 

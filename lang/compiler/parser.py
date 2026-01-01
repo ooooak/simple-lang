@@ -1,82 +1,80 @@
 import logging
-
+from pathlib import Path
 from typing import List
-from dataclasses import dataclass
 
+from lang.compiler.exceptions import ParserException
 from lang.compiler.lexer import TokenKind, Token
 from lang.compiler.reader import Reader
 
 
 logger = logging.getLogger(__name__)
 
-@dataclass
-class ParserErr:
-    message: str
+
+
+def parser_exception(err):
+    return ParserException(err, "unk", 0, 0)
 
 class Parser:
     """
     Converts tokens into an Abstract Syntax Tree (AST)
     """
-    def __init__(self, lexer: List[Token]) -> None:
-        self.lexer = Reader(lexer)
+    def __init__(self, tokens: List[Token], filepath: Path) -> None:
+        self._lexer = Reader(tokens)
+        self._filepath = filepath
+
+    def create_ast(self):
+        body = []
+        while True:
+            token = self.parse()
+            if not token:
+                break
+            body.append(token)
+        return { "source": self._filepath, "body": body }
 
     def parse(self):
-        token = self.lexer.peek()
+        token = self._lexer.peek()
         if not token:
-            return None, None
+            return None
 
-        next = self.lexer.peek_next()
+        n = self._lexer.peek_next()
         if token.kind == TokenKind.KEYWORD:
-            if next.value == '=':
+            if n.value == '=':
                 return self.binding()
-            if next.value == '(':
+            if n.value == '(':
                 return self.fn_call()
 
         if token.value == 'def':
             # parse function definition
             return self.parse_def()
 
-        if token.value == ':':
-            return self.parse_keyword()
+        # if token.value == ':':
+        #     return self.parse_keyword()
 
         if token.value == "{":
             return self.parse_block()
 
         logger.error('invalid token, %s', token)
 
-    def create_ast(self):
-        body = []
-        while True:
-            token, err = self.parse()
-            if err:
-                return None, err
-
-            if not token:
-                break
-
-            body.append(token)
-
-        return { "body": body }, None
 
 
     def fn_call(self):
-        start = self.lexer.get_pos()
-        name = self.lexer.get()
+        start = self._lexer.position
+        name = self._lexer.get()
 
         # skip (
-        self.lexer.get()
+        self._lexer.get()
 
         allowed = [
             TokenKind.KEYWORD,
             TokenKind.STRING_LITERAL
         ]
 
-        arg = self.lexer.get()
+        arg = self._lexer.get()
         if arg.kind not in allowed:
-            return self.err(f"invalid token in fn call {arg}")
+            raise parser_exception(f"invalid token in fn call {arg}")
 
         # skip symbol
-        self.lexer.get()
+        self._lexer.get()
         return {
             "op": "fn_call",
             "name": name.value,
@@ -87,16 +85,16 @@ class Parser:
         pass
 
     def binding(self):
-        start = self.lexer.get_pos()
-        name = self.lexer.get()
+        start = self._lexer.position
+        name = self._lexer.get()
 
         # Skip binding op
-        self.lexer.get()
+        self._lexer.get()
 
-        tk: Token = self.lexer.get()
+        tk: Token = self._lexer.get()
 
         if tk.kind != TokenKind.STRING_LITERAL:
-            return self.err("only strings are supported")
+            return parser_exception("only strings are supported")
 
         return {
             "op": "binding",
@@ -107,58 +105,51 @@ class Parser:
 
     def parse_def(self):
         # skip def
-        self.lexer.get()
-        method_name = self.lexer.get()
+        self._lexer.get()
+        method_name = self._lexer.get()
 
         if method_name.kind != TokenKind.KEYWORD:
-            return self.err("method name is not defined")
+            return parser_exception("method name is not defined")
 
         # parse args
-        p1 = self.lexer.get()
-        p2 = self.lexer.get()
+        p1 = self._lexer.get()
+        p2 = self._lexer.get()
 
         if p1.value != '(':
-            return self.err(f'invalid token {p1.value}')
+            return parser_exception(f'invalid token {p1.value}')
 
         if p2.value != ')':
-            return self.err(f'invalid token {p1.value}')
+            return parser_exception(f'invalid token {p1.value}')
 
         return {
             "op": "def",
             "method_name": method_name,
             "args": [],
             "body": self.parse_block(),
-        }, None
+        }
 
     def parse_block(self):
-        block_start = self.lexer.get()
+        block_start = self._lexer.get()
 
         if block_start.value != '{':
-            self.err('unexpected start of block, expecting {')
+            parser_exception('unexpected start of block, expecting {')
 
         block_ast = []
         while True:
-            c = self.lexer.peek()
+            c = self._lexer.peek()
             if c.value == '}':
                 # block ends here
-                self.lexer.get()
+                self._lexer.get()
                 break
 
 
-            node, err = self.parse()
-            # node, err = self.parse()
-            if err:
-                return None, err
+            node = self.parse()
+            if not node:
+                break
+
             block_ast.append(node)
 
         return {
             "op": "block",
             "body": block_ast
-        }, None
-    
-
-    def parse_keyword(self):
-        pass
-
-    def err(self, txt):
-        return None, ParserErr(message=txt)
+        }

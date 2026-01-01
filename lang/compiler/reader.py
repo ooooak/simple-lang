@@ -12,25 +12,26 @@ class Reader:
     """
     def __init__(self, coll: List):
         self.coll = coll
-        self.pos = 0
+        self._pos = 0
 
-    def get_pos(self):
-        return self.pos
+    @property
+    def position(self):
+        return self._pos
     
     def get(self):
-        b = Seq.get(self.coll, self.pos)
+        b = Seq.get(self.coll, self._pos)
         if b:
-            self.pos += 1
+            self._pos += 1
         return b
 
     def undo_read(self):
-        self.pos -= 1
+        self._pos -= 1
 
     def peek(self):
-        return Seq.get(self.coll, self.pos)
+        return Seq.get(self.coll, self._pos)
 
     def peek_next(self):
-        return Seq.get(self.coll, self.pos + 1)
+        return Seq.get(self.coll, self._pos + 1)
 
     def has_next(self):
         self.peek() is not None

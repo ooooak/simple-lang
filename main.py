@@ -1,7 +1,8 @@
 import logging_setup
 
 import sys
-from lang.compiler.compiler import compile
+from pathlib import Path
+from lang.compiler.compiler import run_compile
 
 def cli_report_error(message: str):
     """
@@ -17,8 +18,8 @@ def main():
     args = sys.argv[1:]
     if len(args) <= 0:
         cli_report_error("source file is missing")
- 
-    compile(args[0])
+
+    run_compile(Path(args[0]))
     
 if __name__ == "__main__":
     main()

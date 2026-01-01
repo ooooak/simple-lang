@@ -10,6 +10,9 @@ class CompilerException(Exception):
 class LexerException(CompilerException):
     pass
 
+class ParserException(CompilerException):
+    pass
+
 
 def log_compiler_exception(e: CompilerException):
     ex_cls = e.__class__.__name__
