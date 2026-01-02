@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 
 def lookup_table(*coll):
@@ -7,10 +6,6 @@ def lookup_table(*coll):
 def spit(file_path, data):
     with open(file_path, 'w', encoding='utf8') as file:
         file.write(data)
-
-def cat(file_path):
-    pass
-
 
 def read_chars(path: Path):
     """

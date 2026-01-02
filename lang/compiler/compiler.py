@@ -6,15 +6,20 @@ from lang.compiler.exceptions import (
 )
 from lang.compiler.lexer import Lexer
 from lang.compiler.parser import Parser
-# from lang.transpiler.transpiler import Transpiler
-# from lang.utils import spit, read_file_char
+
+def log_tokens(tokens):
+    for t in tokens:
+        print(f"{t.kind} -> {repr(t.value)}")
 
 
 def run_compile(filepath: Path):
     try:
         tokens = Lexer(filepath).tokens()
+        log_tokens(tokens)
+        exit()
         ast = Parser(tokens, filepath).create_ast()
         pprint(ast)
+        exit()
     except CompilerException as e:
         log_compiler_exception(e)
 

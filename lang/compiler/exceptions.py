@@ -14,9 +14,13 @@ class ParserException(CompilerException):
     pass
 
 
+RED = "\033[91m"
+GREEN = "\033[92m"
+YELLOW = "\033[93m"
+BLUE = "\033[94m"
+RESET = "\033[0m"
+
 def log_compiler_exception(e: CompilerException):
     ex_cls = e.__class__.__name__
-
-    print(f"{ex_cls} {e.filepath}:{e.line_number}:{e.pos}")
-    print(e.message)
+    print(f"{RED}{ex_cls}: {e.error} at {e.filepath}:{e.line_number + 1}{RESET}")
 
