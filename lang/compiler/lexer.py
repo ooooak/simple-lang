@@ -12,6 +12,9 @@ logger = logging.getLogger(__name__)
 
 
 class TokenKind(Enum):
+    """
+    Base Token Kinds
+    """
     
     # Identifiers & Scalar
     IDENTIFIER = auto() # x, totalSum, myVar
@@ -82,10 +85,6 @@ class TokenKind(Enum):
 LINE_FEED = ['\n', '\r']
 SPACE = [' ', '\t']
 
-IF = auto() # if
-ELSE = auto() # else
-WHILE = auto() # while
-RETURN = auto() # return
 
 RESERVED_KEYWORDS={
     'if': TokenKind.IF,
@@ -120,7 +119,6 @@ class Token:
     start_pos: int
     end_pos: int
 
-
 def is_latter(b):
     return 'A' <= b <= 'Z' or 'a' <= b <= 'z'
 
@@ -141,9 +139,6 @@ def valid_string_continuation(b):
     # check if followup char is valid string continuation
     return b not in LINE_FEED
 
-
-
-
 def lexer_exception(lex: 'Lexer', error: str):
     return LexerException(
         error=error,
@@ -162,9 +157,15 @@ class Lexer:
         self.line_feed = 0
 
     def tokens(self):
-        return list(iter(self.token, None))
+        """
+        create list of tokens
+        """
+        return list(iter(self.start_scanner, None))
 
-    def token(self):
+    def start_scanner(self):
+        """
+        Start Scanning for tokens
+        """""
         b = self.r.peek()
         if DEBUG_LEXER:
             logger.info(
@@ -176,11 +177,11 @@ class Lexer:
         match b:
             case None:
                 return None
-            
+
             case _ if b in SINGULAR_TOKEN_MAPPINGS:
                 kind = SINGULAR_TOKEN_MAPPINGS[b]
                 return self.consume(kind, self.r.get())
-            
+
             case _ if is_identifier_start(b):
                 val = self._scan_identifier_value()
                 if val in RESERVED_KEYWORDS:
@@ -190,7 +191,7 @@ class Lexer:
 
             case "#":
                 return self._scan_comment()
-            
+
             case _ if is_number(b):
                 return self._scan_number()
 
@@ -199,12 +200,12 @@ class Lexer:
 
             case _ if b in SPACE:
                 self.r.get()
-                return self.token()
+                return self.start_scanner()
 
             case _ if b in LINE_FEED:
                 self.line_feed += 1
                 self.r.get()
-                return self.token()
+                return self.start_scanner()
 
         raise lexer_exception(self, f'unexpected value: {repr(b)}')
 
@@ -229,7 +230,7 @@ class Lexer:
 
             if b == '"':
                 break
-        
+
             if valid_string_continuation(b):
                 coll += b
         return self.consume(TokenKind.SCALAR_STRING, coll)

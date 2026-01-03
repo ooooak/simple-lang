@@ -1,9 +1,11 @@
-var x = import("./hello-world")
-
-
-# struct Person {}
+const hello_world = import("./hello-world")
 
 var hello str = "world"
+
+
+hello_world.print()
+
+
 def select_multi(p Parse, p Select, i_col int) Coll {
     print(p)
 }
