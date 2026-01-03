@@ -98,7 +98,7 @@ class Parser:
         self._lexer.get()
         method_name = self._lexer.get()
 
-        if method_name.kind != TokenKind.KEYWORD:
+        if method_name.kind != TokenKind.RESERVED_KEYWORD:
             raise parser_exception(self, "method name is not defined")
 
         # parse args

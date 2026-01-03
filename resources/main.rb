@@ -1,7 +1,9 @@
+var x = import("./hello-world")
+
+
 # struct Person {}
 
 var hello str = "world"
-
 def select_multi(p Parse, p Select, i_col int) Coll {
     print(p)
 }
@@ -11,8 +13,11 @@ def _main() {
 }
 
 def main() {
-    y = "hello"
-    x = "hello"
+    var y = "hello"
+    var x = "hello"
+    var y = 1
+
+    # var x = 1 + 1;
     # z = {
     #     name: 'hello'
     #     age: '123'
@@ -20,3 +25,4 @@ def main() {
     #     test: '1'
     # }
 }
+

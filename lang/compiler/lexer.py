@@ -6,39 +6,111 @@ from enum import Enum, auto
 from lang.compiler.reader import Reader
 from lang.utils import read_chars
 from lang.compiler.exceptions import LexerException
+from lang.config import DEBUG_LEXER
 
 logger = logging.getLogger(__name__)
 
-LINE_FEED = ['\n', '\r']
-SPACE = [' ', '\t']
-RESERVED_KEYWORDS=['if', 'else', 'var', 'const']
-SYMBOLS = {
-    '(': True,
-    ')': True,
-    '+': True,
-    '-': True,
-    '*': True,
-    '/': True,
-    '//': True,
-    '%': True,
-    '{': True,
-    '}': True,
-    '[': True,
-    ']': True,
-    ',': True,
-    ':': True,
-    '=': True,
-}
-
 
 class TokenKind(Enum):
-    RESERVED_KEYWORD=auto()
-    IDENTIFIER=auto()
-    SYMBOL=auto()
-    STRING_LITERAL=auto()
-    COMMENT=auto()
-    OPERATOR=auto()
+    
+    # Identifiers & Scalar
+    IDENTIFIER = auto() # x, totalSum, myVar
+    SCALAR_NUMBER = auto() # 10, 3.14, 42
+    SCALAR_FLOAT = auto()
+    SCALAR_STRING = auto() # "hello"
+    SCALAR_CHAR = auto() # 'hello'
 
+
+    # Keywords
+    IF = auto()
+    ELSE = auto()
+    WHILE = auto()
+    RETURN = auto()
+    VAR = auto()
+    CONST = auto()
+
+    # Operators
+    OP_PLUS = auto() # +
+    OP_MINUS = auto() # -
+    OP_STAR = auto() # *
+    OP_SLASH = auto() # /
+    OP_EQUAL = auto() # =
+    OP_EQUAL_EQUAL = auto() # ==
+    OP_BANG_EQUAL = auto() # !=
+    OP_PERCENT = auto() # %
+
+    # Comparison
+    # OP_EQUAL_EQUAL = auto()     # ==
+    # OP_BANG_EQUAL = auto()      # !=
+    # OP_LESS = auto()            # <
+    # OP_LESS_EQUAL = auto()      # <=
+    # OP_GREATER = auto()         # >
+    # OP_GREATER_EQUAL = auto()   # >=
+
+    # Logical
+    # OP_AND = auto()             # and / &&
+    # OP_OR = auto()              # or  / ||
+    # OP_NOT = auto()             # not / !
+
+    # # Unary / Increment (if supported)
+    # OP_PLUS_PLUS = auto()       # ++
+    # OP_MINUS_MINUS = auto()     # --
+
+    # # Bitwise (optional but common)
+    # OP_BIT_AND = auto()         # &
+    # OP_BIT_OR = auto()          # |
+    # OP_BIT_XOR = auto()         # ^
+    # OP_BIT_NOT = auto()         # ~
+    # OP_SHIFT_LEFT = auto()      # <<
+    # OP_SHIFT_RIGHT = auto()     # >>
+
+
+    # Delimiters
+    LEFT_PAREN = auto() # (
+    RIGHT_PAREN = auto() # )
+    LEFT_BRACE = auto() # {
+    RIGHT_BRACE = auto() # }
+    LEFT_BRACKET = auto() # [
+    RIGHT_BRACKET = auto() # ]
+    COMMA = auto() # ,
+    DOT = auto() # .
+    SEMICOLON = auto()
+
+    COMMENT = auto() # # comment
+    EOF = auto()
+
+LINE_FEED = ['\n', '\r']
+SPACE = [' ', '\t']
+
+IF = auto() # if
+ELSE = auto() # else
+WHILE = auto() # while
+RETURN = auto() # return
+
+RESERVED_KEYWORDS={
+    'if': TokenKind.IF,
+    'else': TokenKind.ELSE,
+    'var': TokenKind.VAR,
+    'const': TokenKind.CONST,
+}
+
+SINGULAR_TOKEN_MAPPINGS = {
+    '(': TokenKind.LEFT_PAREN,
+    ')': TokenKind.RIGHT_PAREN,
+    '+': TokenKind.OP_PLUS,
+    '-': TokenKind.OP_MINUS,
+    '*': TokenKind.OP_STAR,
+    '/': TokenKind.OP_SLASH,
+    '%': TokenKind.OP_PERCENT,
+    '{': TokenKind.LEFT_BRACE,
+    '}': TokenKind.RIGHT_BRACE,
+    '[': TokenKind.LEFT_BRACKET,
+    ']': TokenKind.RIGHT_BRACKET,
+    ',': TokenKind.COMMA,
+    '.': TokenKind.DOT,
+    '=': TokenKind.OP_EQUAL,
+    ';': TokenKind.SEMICOLON,
+}
 
 @dataclass(frozen=True)
 class Token:
@@ -63,7 +135,7 @@ def valid_identifier_continuation(b):
     if b in LINE_FEED or b in SPACE:
         return False
 
-    return is_latter(b) or b == "_" or is_number(b) 
+    return is_latter(b) or b == "_" or is_number(b)
 
 def valid_string_continuation(b):
     # check if followup char is valid string continuation
@@ -94,36 +166,49 @@ class Lexer:
 
     def token(self):
         b = self.r.peek()
-        if b is None:
-            return None
+        if DEBUG_LEXER:
+            logger.info(
+                "b (%s) in SINGULAR_TOKEN_MAPPINGS: %s",
+                repr(b),
+                b in SINGULAR_TOKEN_MAPPINGS
+            )
 
-        if b in SYMBOLS:
-            return self.consume(TokenKind.RESERVED_KEYWORD, self.r.get())
-        
-        if is_identifier_start(b):
-            keyword = self.keyword()
-            if keyword in RESERVED_KEYWORDS:
-                return self.consume(TokenKind.RESERVED_KEYWORD, keyword)
-            return self.consume(TokenKind.IDENTIFIER, keyword)
-        
-        if b == "#":
-            return self.comment()
+        match b:
+            case None:
+                return None
+            
+            case _ if b in SINGULAR_TOKEN_MAPPINGS:
+                kind = SINGULAR_TOKEN_MAPPINGS[b]
+                return self.consume(kind, self.r.get())
+            
+            case _ if is_identifier_start(b):
+                val = self._scan_identifier_value()
+                if val in RESERVED_KEYWORDS:
+                    kind = RESERVED_KEYWORDS[val]
+                    return self.consume(kind, val)
+                return self.consume(TokenKind.IDENTIFIER, val)
 
-        if b == '"':
-            return self.string()
- 
-        if b in SPACE:
-            self.r.get()
-            return self.token()
-        
-        if b in LINE_FEED:
-            self.line_feed += 1
-            self.r.get()
-            return self.token()
+            case "#":
+                return self._scan_comment()
+            
+            case _ if is_number(b):
+                return self._scan_number()
+
+            case '"':
+                return self._scan_string()
+
+            case _ if b in SPACE:
+                self.r.get()
+                return self.token()
+
+            case _ if b in LINE_FEED:
+                self.line_feed += 1
+                self.r.get()
+                return self.token()
 
         raise lexer_exception(self, f'unexpected value: {repr(b)}')
 
-    def keyword(self):
+    def _scan_identifier_value(self):
         coll = ""
         while True:
             b = self.r.get()
@@ -134,7 +219,7 @@ class Lexer:
                 break
         return coll
     
-    def string(self):
+    def _scan_string(self):
         self.r.get() # skip start
         coll = ""
         while True:
@@ -147,15 +232,31 @@ class Lexer:
         
             if valid_string_continuation(b):
                 coll += b
-        return self.consume(TokenKind.STRING_LITERAL, coll)
+        return self.consume(TokenKind.SCALAR_STRING, coll)
 
-    def comment(self):
+    def _scan_comment(self):
         coll = ""
         while b := self.r.get():
             coll += b
             if b in LINE_FEED:
                 break
         return self.consume(TokenKind.COMMENT, coll)
+
+
+    def _scan_number(self):
+        coll = ""
+        while True:
+            b = self.r.get()
+            if not b:
+                raise lexer_exception(self, 'unexpected eof while parsing string literal')
+
+            if is_number(b):
+                coll += b
+                continue
+            self.r.undo_read()
+            break
+
+        return self.consume(TokenKind.SCALAR_NUMBER, coll)
 
     def consume(self, kind: TokenKind, value: str):
         """
@@ -164,7 +265,7 @@ class Lexer:
         return Token(
             value,
             kind,
-            self.line_feed, 
-            self.r.position, 
+            self.line_feed,
+            self.r.position,
             self.r.position
         )
