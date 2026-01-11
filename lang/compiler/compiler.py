@@ -5,7 +5,7 @@ from lang.compiler.exceptions import (
     log_compiler_exception
 )
 from lang.compiler.lexer import Lexer
-from lang.compiler.parser import Parser
+from lang.compiler.parser import create_ast
 
 def log_tokens(tokens):
     for t in tokens:
@@ -15,9 +15,7 @@ def log_tokens(tokens):
 def run_compile(filepath: Path):
     try:
         tokens = Lexer(filepath).tokens()
-        log_tokens(tokens)
-        exit()
-        ast = Parser(tokens, filepath).create_ast()
+        ast = create_ast(tokens, filepath)
         pprint(ast)
         exit()
     except CompilerException as e:

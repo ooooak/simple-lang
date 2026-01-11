@@ -1,8 +1,6 @@
-var alloc = import("std/alloc")
-var hello_world = import("./hello-world")
+import "@std/fmt"
 
-var hello str = "world"
-
+hello = "world"
 
 def select_multi(p Parse, p Select, i_col int) Coll {
     print(p)
@@ -13,15 +11,9 @@ def _main() {
 }
 
 def main() {
-    var y = "hello"
-    var x = "hello"
-    var y = 1
+    y = "hello"
+    x = "hello"
+    y = 1
 
-    # var x = 1 + 1;
-    # z = {
-    #     name: 'hello'
-    #     age: '123'
-    #     funnel: 'google'
-    #     test: '1'
-    # }
+    print(hello)
 }

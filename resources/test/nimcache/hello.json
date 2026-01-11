@@ -1,0 +1,47 @@
+{
+  "cacheVersion": "D20240927T193831",
+  "outputFile": "/Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/hello",
+  "outputLastModificationTime": "",
+  "compile": [
+    [
+      "/Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@psystem@sexceptions.nim.c",
+      "clang -c  -w -ferror-limit=3 -fno-strict-aliasing -pthread   -I/opt/homebrew/Cellar/nim/2.2.6/nim/lib -I/Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test -o /Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@psystem@sexceptions.nim.c.o /Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@psystem@sexceptions.nim.c"
+    ],
+    [
+      "/Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@pstd@sprivate@sdigitsutils.nim.c",
+      "clang -c  -w -ferror-limit=3 -fno-strict-aliasing -pthread   -I/opt/homebrew/Cellar/nim/2.2.6/nim/lib -I/Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test -o /Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@pstd@sprivate@sdigitsutils.nim.c.o /Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@pstd@sprivate@sdigitsutils.nim.c"
+    ],
+    [
+      "/Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@psystem@sdollars.nim.c",
+      "clang -c  -w -ferror-limit=3 -fno-strict-aliasing -pthread   -I/opt/homebrew/Cellar/nim/2.2.6/nim/lib -I/Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test -o /Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@psystem@sdollars.nim.c.o /Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@psystem@sdollars.nim.c"
+    ],
+    [
+      "/Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@psystem.nim.c",
+      "clang -c  -w -ferror-limit=3 -fno-strict-aliasing -pthread   -I/opt/homebrew/Cellar/nim/2.2.6/nim/lib -I/Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test -o /Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@psystem.nim.c.o /Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@psystem.nim.c"
+    ],
+    [
+      "/Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@mhello.nim.c",
+      "clang -c  -w -ferror-limit=3 -fno-strict-aliasing -pthread   -I/opt/homebrew/Cellar/nim/2.2.6/nim/lib -I/Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test -o /Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@mhello.nim.c.o /Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@mhello.nim.c"
+    ]
+  ],
+  "link": [
+    "/Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@psystem@sexceptions.nim.c.o",
+    "/Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@pstd@sprivate@sdigitsutils.nim.c.o",
+    "/Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@psystem@sdollars.nim.c.o",
+    "/Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@psystem.nim.c.o",
+    "/Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@mhello.nim.c.o"
+  ],
+  "linkcmd": "clang   -o /Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/hello /Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@psystem@sexceptions.nim.c.o /Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@pstd@sprivate@sdigitsutils.nim.c.o /Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@psystem@sdollars.nim.c.o /Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@psystem.nim.c.o /Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test/nimcache/@mhello.nim.c.o    -ldl",
+  "extraCmds": [],
+  "configFiles": [
+    "/opt/homebrew/Cellar/nim/2.2.6/nim/config/nim.cfg",
+    "/opt/homebrew/Cellar/nim/2.2.6/nim/config/config.nims"
+  ],
+  "stdinInput": false,
+  "projectIsCmd": false,
+  "cmdInput": "",
+  "currentDir": "/Users/akshaydeepgiri/Desktop/code/simple-lang/resources/test",
+  "cmdline": "",
+  "depfiles": [],
+  "nimexe": ""
+}

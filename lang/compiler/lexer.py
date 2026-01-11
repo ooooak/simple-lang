@@ -15,7 +15,7 @@ class TokenKind(Enum):
     """
     Base Token Kinds
     """
-    
+
     # Identifiers & Scalar
     IDENTIFIER = auto() # x, totalSum, myVar
     SCALAR_NUMBER = auto() # 10, 3.14, 42
@@ -31,6 +31,7 @@ class TokenKind(Enum):
     RETURN = auto()
     VAR = auto()
     CONST = auto()
+    FN_DEF = auto()
 
     # Operators
     OP_PLUS = auto() # +
@@ -85,12 +86,12 @@ class TokenKind(Enum):
 LINE_FEED = ['\n', '\r']
 SPACE = [' ', '\t']
 
-
 RESERVED_KEYWORDS={
     'if': TokenKind.IF,
     'else': TokenKind.ELSE,
     'var': TokenKind.VAR,
     'const': TokenKind.CONST,
+    'def': TokenKind.FN_DEF,
 }
 
 SINGULAR_TOKEN_MAPPINGS = {

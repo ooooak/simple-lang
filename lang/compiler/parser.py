@@ -6,142 +6,159 @@ from lang.compiler.exceptions import ParserException
 from lang.compiler.lexer import TokenKind, Token
 from lang.compiler.reader import Reader
 
+from pprint import pprint
+
 logger = logging.getLogger(__name__)
 
-def parser_exception(p: 'Parser', err):
-    return ParserException(err, p._filepath, 0, 0)
-
-class Parser:
-    """
-    Converts tokens into an Abstract Syntax Tree (AST)
-    """
-    def __init__(self, tokens: List[Token], filepath: Path) -> None:
-        self._lexer = Reader(tokens)
-        self._filepath = filepath
-
-    def create_ast(self):
-        return { 
-            "source": self._filepath, 
-            "program": [tok for tok in iter(self.parse, None)]
-        }
-
-    def parse(self):
-        token = self._lexer.peek()
-        if not token:
-            return None
-        
-        if token.value == 'def':
-            return self.parse_def()
-
-        n = self._lexer.peek_next()
-        if token.kind == TokenKind.KEYWORD:
-            if n.value == '=':
-                return self.binding()
-            if n.value == '(':
-                return self.fn_call()
+def parser_exception(p, err):
+    return ParserException(err, "p._filepath", 0, 0)
 
 
-        # if token.value == ':':
-        #     return self.parse_keyword()
 
-        if token.value == "{":
-            return self.parse_block()
+def scan_fn(lex: Reader):
+    lex.get() # skip def
 
-        ParserException(f"invalid token {token}")
+    method_name = lex.get()
+    assert method_name.kind == TokenKind.IDENTIFIER
 
-    def fn_call(self):
-        start = self._lexer.position
-        name = self._lexer.get()
+    token = lex.peek()
+    print(token)
+    assert token.kind == TokenKind.LEFT_PAREN
 
-        # skip (
-        self._lexer.get()
+    args = scan_fn_args(lex)
 
-        allowed = [
-            TokenKind.KEYWORD,
-            TokenKind.STRING_LITERAL
-        ]
+    return_type = None
+    if lex.peek().kind == TokenKind.IDENTIFIER:
+        lex.get() # skip
+        return_type = lex.peek() 
 
-        arg = self._lexer.get()
-        if arg.kind not in allowed:
-            raise parser_exception(self, f"invalid token in fn call {arg}")
 
-        # skip symbol
-        self._lexer.get()
-        return {
-            "op": "fn_call",
-            "name": name.value,
-            "args": [{"value": arg.value, "kind": arg.kind}],
-        }, None
+    assert lex.peek().kind == TokenKind.LEFT_BRACE
+ 
+    block = scan_block(lex)
 
-    def coll_args(self):
-        pass
+    return {
+        "op": "def",
+        "method_name": method_name.value,
+        "args": args,
+        "type": return_type,
+        "body": block, 
+    }
 
-    def binding(self):
-        name = self._lexer.get()
 
-        # Skip binding op
-        self._lexer.get()
+def scan_fn_args(lex: Reader):
+    lex.get() # skip (
 
-        tk: Token = self._lexer.get()
-        if tk.kind != TokenKind.STRING_LITERAL:
-            raise parser_exception(self, "only strings are supported")
+    args = []
+    while True:
+        arg_name = lex.get()
+        arg_type = lex.get()
 
-        return {
-            "op": "binding",
-            "name": name.value,
-            "value": tk.value,
-            "value_type": ""
-        }, None
+        assert arg_name.kind == arg_type.kind == TokenKind.IDENTIFIER
+        args.append({
+            "name": arg_name.value,
+            "type": arg_type.value,
+        })
 
-    def parse_def(self):
-        # skip def
-        self._lexer.get()
-        method_name = self._lexer.get()
+        next: Token = lex.peek()
+        if next.kind == TokenKind.COMMA:
+            lex.get() # skip comma
+            continue
+        if next.kind == TokenKind.RIGHT_PAREN:
+            lex.get() # skip )
+            break
+    return args
 
-        if method_name.kind != TokenKind.RESERVED_KEYWORD:
-            raise parser_exception(self, "method name is not defined")
+def scan_block(lex):
+    lex.get()
+    block_ast = []
+    while True:
+        c = lex.peek()
+        if c.value == '}':
+            # block ends here
+            lex.get()
+            break
 
-        # parse args
-        p1 = self._lexer.get()
-        p2 = self._lexer.get()
+        node = scan(lex)
+        if not node:
+            break
 
-        if p1.value != '(':
-            raise parser_exception(self, f'invalid token {p1.value}')
+        block_ast.append(node)
 
-        if p2.value != ')':
-            raise parser_exception(self, f'invalid token {p1.value}')
+    return {
+        "op": "block",
+        "body": block_ast
+    }
 
-        return {
-            "op": "def",
-            "method_name": method_name.value,
-            "args": [],
-            "body": self.parse_block(),
-        }
 
-    def parse_block(self):
-        block_start = self._lexer.get()
+def scan(lex):
+    token: Token = lex.peek()
+    if not token:
+        return None
+    
+    if token.kind == TokenKind.FN_DEF:
+        return scan_fn(lex)
 
-        if block_start.value != '{':
-            raise parser_exception(self, 'unexpected start of block, expecting {')
+    n = lex.peek_next()
+    if token.kind == TokenKind.IDENTIFIER:
+        if n.value == '=':
+            return scan_binding(lex)
+        if n.value == '(':
+            return scan_fn_call(lex)
 
-        block_ast = []
-        while True:
-            c = self._lexer.peek()
-            if c.value == '}':
-                # block ends here
-                self._lexer.get()
-                break
 
-            node = self.parse()
-            if not node:
-                break
+    # if token.value == ':':
+    #     return self.parse_keyword()
 
-            block_ast.append(node)
+    if token.value == "{":
+        return scan_block(lex)
+    v = lex.get()
+    return v
 
-        return {
-            "op": "block",
-            "body": block_ast
-        }
 
-    def parse_struct(self):
-        pass
+def scan_binding(lex):
+    name = lex.get()
+    lex.get()
+
+    tk: Token = lex.get()
+    assert tk.kind == TokenKind.SCALAR_STRING
+
+    return {
+        "op": "binding",
+        "name": name.value,
+        "value": tk.value,
+        "value_type": ""
+    }, None
+
+def scan_fn_call(lex):
+    name = lex.get()
+
+    # skip (
+    lex.get()
+
+    allowed = [
+        TokenKind.IDENTIFIER,
+        TokenKind.SCALAR_STRING
+    ]
+
+    arg = lex.get()
+    if arg.kind not in allowed:
+        raise parser_exception(None, f"invalid token in fn call {arg}")
+
+    # skip symbol
+    lex.get()
+    return {
+        "op": "fn_call",
+        "name": name.value,
+        "args": [{"value": arg.value, "kind": arg.kind}],
+    }
+
+
+
+def create_ast(tokens: List[Token], filepath: Path):
+
+    lex = Reader(tokens)
+    return {
+        "source": filepath, 
+        "program": [tok for tok in iter(lambda: scan(lex), None)]
+    }
