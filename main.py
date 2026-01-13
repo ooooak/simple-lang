@@ -1,37 +1,25 @@
-from lang.utils.logging import setup_logging, DEFAULT_CONFIG
-setup_logging(DEFAULT_CONFIG)
-
-
+import logging_setup
 
 import sys
-from pprint import pprint
-from lang.compiler.lexer import Lexer
-from lang.compiler.parser import Parser
-from lang.transpiler.transpiler import Transpiler
+from pathlib import Path
+from lang.compiler.compiler import run_compile
 
-from lang.utils import spit, read_file_char
-
-
-def handle_error(err):
-    print(f"{err.file_path}:{err.line_number}: {err.message}")
-    exit()
-
+def cli_report_error(message: str):
+    """
+    Common method to display error message for cli
+    
+    :param message: Description
+    :type message: str
+    """
+    print(f"Error: {message}")
+    exit(1)
 
 def main():
-    tokens, err = Lexer('./resources/main.s').tokens()
-    if err:
-        handle_error(err)
+    args = sys.argv[1:]
+    if len(args) <= 0:
+        cli_report_error("source file is missing")
 
-    pprint(tokens)
-    exit()
-    ast, err = Parser(tokens).parse_body()
-    if err:
-        print(err)
-        sys.exit()
-    
-    pprint(ast)
-    # output = Transpiler(ast).compile()
-    # spit("./resources/main.go", output)
+    run_compile(Path(args[0]))
     
 if __name__ == "__main__":
     main()

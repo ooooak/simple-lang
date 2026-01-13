@@ -1,4 +1,3 @@
-
 class Seq:
     @staticmethod
     def get(data, index, default=None):

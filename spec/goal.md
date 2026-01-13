@@ -1,3 +1,1 @@
-
-x = "Hello world"
-print(x)
+Make c simple; safe and fun to write.
